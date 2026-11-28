@@ -1,0 +1,23 @@
+version: 1
+default_action: ask
+approval_timeout_ms: 60000
+
+# Optional: load tokens from your OS keychain instead of writing them in .mcp.json
+# Save one with: npx lettuce-mcp secret set github-token
+# secrets:
+#   GITHUB_PERSONAL_ACCESS_TOKEN: "keychain://lettuce/github-token"
+
+rules:
+  # Reading runs without asking, and is still written to the receipts.
+  - tools: ['get_*', 'list_*', 'read_*', 'search_*']
+    action: allow
+
+  # Changes wait for you. Allow once, or for a while.
+  - tools: ['create_*', 'update_*', 'push_*', 'write_*']
+    action: ask
+    lease_options: ['once', '15m', '1h']
+    max_calls_per_lease: 5
+
+  # Never: hidden from the agent and blocked.
+  - tools: ['delete_*', 'drop_*', 'destroy_*']
+    action: never
